@@ -85,8 +85,12 @@ StyledRect {
                 return;
 
             const actions = root.modelData.actions;
-            if (actions.length === 1)
-                actions[0].invoke();
+            if (!actions || actions.length === 0)
+                return;
+
+            const defAction = actions.find(a => a.identifier === "default") ?? actions[0];
+            if (defAction && typeof defAction.invoke === "function")
+                defAction.invoke();
         }
 
         Item {
@@ -123,7 +127,9 @@ StyledRect {
 
                     Image {
                         anchors.fill: parent
-                        source: Qt.resolvedUrl(root.modelData.image)
+                        source: root.modelData.image.startsWith("image://icon/") && root.modelData.image.includes("/tmp/")
+                            ? "file://" + root.modelData.image.replace("image://icon/", "")
+                            : Qt.resolvedUrl(root.modelData.image)
                         fillMode: Image.PreserveAspectCrop
                         sourceSize: {
                             const size = TokenConfig.sizes.notifs.image * ((QsWindow.window as QsWindow)?.devicePixelRatio ?? 1);
@@ -165,9 +171,15 @@ StyledRect {
 
                         sourceComponent: ColouredIcon {
                             anchors.fill: parent
-                            source: Quickshell.iconPath(root.modelData.appIcon)
+                            source: {
+                                const icon = root.modelData.appIcon;
+                                if (!icon) return "";
+                                if (icon.startsWith("/") || icon.startsWith("file://"))
+                                    return icon.startsWith("file://") ? icon : "file://" + icon;
+                                return Quickshell.iconPath(icon) || icon;
+                            }
                             colour: root.modelData.urgency === NotificationUrgency.Critical ? Colours.palette.m3onError : root.modelData.urgency === NotificationUrgency.Low ? Colours.palette.m3onSurface : Colours.palette.m3onSecondaryContainer
-                            layer.enabled: root.modelData.appIcon.endsWith("symbolic")
+                            layer.enabled: root.modelData.appIcon.includes("symbolic")
                         }
                     }
 

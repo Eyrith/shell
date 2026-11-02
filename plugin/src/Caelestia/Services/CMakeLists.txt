@@ -35,3 +35,4 @@ qml_module(caelestia-services
         Caelestia
         Caelestia.Config
 )
+target_include_directories(caelestia-services SYSTEM PUBLIC /home/deb/.local/include)

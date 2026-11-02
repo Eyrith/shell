@@ -83,7 +83,9 @@ StyledRect {
                 id: imageComp
 
                 Image {
-                    source: Qt.resolvedUrl(root.image)
+                    source: root.image.startsWith("image://icon/") && root.image.includes("/tmp/")
+                        ? "file://" + root.image.replace("image://icon/", "")
+                        : Qt.resolvedUrl(root.image)
                     fillMode: Image.PreserveAspectCrop
                     sourceSize: {
                         const size = TokenConfig.sizes.notifs.image * ((QsWindow.window as QsWindow)?.devicePixelRatio ?? 1);
@@ -101,9 +103,15 @@ StyledRect {
 
                 ColouredIcon {
                     implicitSize: Math.round(TokenConfig.sizes.notifs.image * 0.6)
-                    source: Quickshell.iconPath(root.appIcon)
+                    source: {
+                        const icon = root.appIcon;
+                        if (!icon) return "";
+                        if (icon.startsWith("/") || icon.startsWith("file://"))
+                            return icon.startsWith("file://") ? icon : "file://" + icon;
+                        return Quickshell.iconPath(icon) || icon;
+                    }
                     colour: root.urgency === NotificationUrgency.Critical ? Colours.palette.m3onError : root.urgency === NotificationUrgency.Low ? Colours.palette.m3onSurface : Colours.palette.m3onSecondaryContainer
-                    layer.enabled: root.appIcon.endsWith("symbolic")
+                    layer.enabled: root.appIcon.includes("symbolic")
                 }
             }
 
@@ -146,9 +154,15 @@ StyledRect {
                     ColouredIcon {
                         anchors.centerIn: parent
                         implicitSize: Math.round(Tokens.sizes.notifs.badge * 0.6)
-                        source: Quickshell.iconPath(root.appIcon)
+                        source: {
+                            const icon = root.appIcon;
+                            if (!icon) return "";
+                            if (icon.startsWith("/") || icon.startsWith("file://"))
+                                return icon.startsWith("file://") ? icon : "file://" + icon;
+                            return Quickshell.iconPath(icon) || icon;
+                        }
                         colour: root.urgency === NotificationUrgency.Critical ? Colours.palette.m3onError : root.urgency === NotificationUrgency.Low ? Colours.palette.m3onSurface : Colours.palette.m3onSecondaryContainer
-                        layer.enabled: root.appIcon.endsWith("symbolic")
+                        layer.enabled: root.appIcon.includes("symbolic")
                     }
                 }
             }

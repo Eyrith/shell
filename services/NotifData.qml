@@ -110,7 +110,9 @@ QtObject {
                 }
 
                 anchors.fill: parent
-                source: Qt.resolvedUrl(notif.image)
+                source: notif.image.startsWith("image://icon/") && notif.image.includes("/tmp/")
+                    ? "file://" + notif.image.replace("image://icon/", "")
+                    : Qt.resolvedUrl(notif.image)
                 fillMode: Image.PreserveAspectCrop
                 cache: false
                 asynchronous: true
@@ -130,18 +132,22 @@ QtObject {
 
         function onSummaryChanged(): void {
             notif.summary = notif.notification.summary;
+            notif.checkWebApps();
         }
 
         function onBodyChanged(): void {
             notif.body = notif.notification.body;
+            notif.checkWebApps();
         }
 
         function onAppIconChanged(): void {
             notif.appIcon = notif.notification.appIcon;
+            notif.checkWebApps();
         }
 
         function onAppNameChanged(): void {
             notif.appName = notif.notification.appName;
+            notif.checkWebApps();
         }
 
         function onImageChanged(): void {
@@ -200,9 +206,28 @@ QtObject {
         }
     }
 
+    function checkWebApps(): void {
+        const isWhatsApp = appName === "web.whatsapp.com"
+            || (appName && appName.toLowerCase().includes("whatsapp"))
+            || (summary && summary.toLowerCase().includes("whatsapp"))
+            || (body && body.toLowerCase().includes("web.whatsapp.com"));
+
+        if (isWhatsApp) {
+            appName = "WhatsApp Web";
+            if (!appIcon || appIcon === "web.whatsapp.com" || appIcon.includes("scoped_dir")) {
+                appIcon = "whatsapp";
+            }
+            if (body && /[\r\n\s]*\(?web\.whatsapp\.com\)?$/i.test(body)) {
+                body = body.replace(/[\r\n\s]*\(?web\.whatsapp\.com\)?$/i, "").trim();
+            }
+        }
+    }
+
     function maybeTriggerDummyImageLoader(): void {
-        if (image && !image.startsWith("image://icon/") && !image.startsWith(Paths.notifimagecache))
-            dummyImageLoader.active = true;
+        if (image && !image.startsWith(Paths.notifimagecache)) {
+            if (!image.startsWith("image://icon/") || image.includes("/tmp/"))
+                dummyImageLoader.active = true;
+        }
     }
 
     function lock(item: Item): void {
@@ -234,6 +259,7 @@ QtObject {
         appIcon = notification.appIcon;
         appName = notification.appName;
         image = notification.image;
+        checkWebApps();
         maybeTriggerDummyImageLoader();
         expireTimeout = notification.expireTimeout;
         hints = notification.hints;
