@@ -88,11 +88,11 @@ PageBase {
             IconTextButton {
                 icon: "wallpaper"
                 text: Tr.tr("Wallpapers")
-                font: Tokens.font.body.large
+                font: Tokens.font.body.medium
                 isRound: true
                 shapeMorph: true
                 type: IconTextButton.Tonal
-                horizontalPadding: Tokens.padding.extraLarge
+                horizontalPadding: Tokens.padding.large
                 verticalPadding: Tokens.padding.medium
                 disabled: !Config.background.wallpaperEnabled
                 onClicked: root.nState.openSubPage(1) // Wallpaper page
@@ -101,13 +101,37 @@ PageBase {
             IconTextButton {
                 icon: "palette"
                 text: Tr.tr("Colours")
-                font: Tokens.font.body.large
+                font: Tokens.font.body.medium
                 isRound: true
                 shapeMorph: true
                 type: IconTextButton.Tonal
-                horizontalPadding: Tokens.padding.extraLarge
+                horizontalPadding: Tokens.padding.large
                 verticalPadding: Tokens.padding.medium
                 onClicked: root.nState.openSubPage(3) // Colours page
+            }
+
+            IconTextButton {
+                icon: "near_me"
+                text: Tr.tr("Cursor")
+                font: Tokens.font.body.medium
+                isRound: true
+                shapeMorph: true
+                type: IconTextButton.Tonal
+                horizontalPadding: Tokens.padding.large
+                verticalPadding: Tokens.padding.medium
+                onClicked: root.nState.openSubPage(4) // Cursor page
+            }
+
+            IconTextButton {
+                icon: "hub"
+                text: Tr.tr("Integrations")
+                font: Tokens.font.body.medium
+                isRound: true
+                shapeMorph: true
+                type: IconTextButton.Tonal
+                horizontalPadding: Tokens.padding.large
+                verticalPadding: Tokens.padding.medium
+                onClicked: root.nState.openSubPage(5) // Integrations page
             }
         }
 
@@ -131,10 +155,30 @@ PageBase {
         ToggleRow {
             Layout.topMargin: Tokens.spacing.extraSmall / 2 - parent.spacing
 
-            last: true
             text: Tr.tr("Dark theme")
             checked: !Colours.light
             onToggled: Colours.setMode(checked ? "dark" : "light")
+        }
+
+        RowButton {
+            Layout.topMargin: Tokens.spacing.extraSmall / 2 - parent.spacing
+
+            icon: "near_me"
+            text: Tr.tr("Adaptive Cursor & Size")
+            subtext: Tr.tr("Vector Hyprcursor recoloring, live sizes & presets")
+            trailingIcon: "chevron_right"
+            onClicked: root.nState.openSubPage(4)
+        }
+
+        RowButton {
+            Layout.topMargin: Tokens.spacing.extraSmall / 2 - parent.spacing
+            last: true
+
+            icon: "hub"
+            text: Tr.tr("App Integrations")
+            subtext: Tr.tr("Kitty, Neovim, Yazi, Cava, Btop, Fastfetch, GTK & Qt")
+            trailingIcon: "chevron_right"
+            onClicked: root.nState.openSubPage(5)
         }
     }
 }
