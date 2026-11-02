@@ -54,7 +54,7 @@ StyledRect {
 
             MonoText {
                 Layout.fillWidth: true
-                text: "caelestiafetch.sh"
+                text: "debonairfetch.sh"
                 elide: Text.ElideRight
             }
 

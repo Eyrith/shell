@@ -39,11 +39,11 @@ PageBase {
         // warning when the (optional) CLI isn't installed
         Process {
             running: true
-            command: ["sh", "-c", "caelestia --version 2>/dev/null"]
+            command: ["sh", "-c", "debonair --version 2>/dev/null || caelestia --version 2>/dev/null"]
             stdout: StdioCollector {
                 onStreamFinished: {
-                    const m = text.match(/caelestia-cli\S*\s+(\d+(?:\.\d+)*)/);
-                    root.cliVersion = m ? m[1] : "";
+                    const m = text.match(/(?:debonair|caelestia)(?:-cli)?\S*\s+(\d+(?:\.\d+)*)/);
+                    root.cliVersion = m ? m[1] : (text.trim() || "");
                 }
             }
         }
