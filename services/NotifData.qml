@@ -110,9 +110,7 @@ QtObject {
                 }
 
                 anchors.fill: parent
-                source: notif.image.startsWith("image://icon/") && notif.image.includes("/tmp/")
-                    ? "file://" + notif.image.replace("image://icon/", "")
-                    : Qt.resolvedUrl(notif.image)
+                source: notif.cleanImageSource(notif.image)
                 fillMode: Image.PreserveAspectCrop
                 cache: false
                 asynchronous: true
@@ -151,7 +149,7 @@ QtObject {
         }
 
         function onImageChanged(): void {
-            notif.image = notif.notification.image;
+            notif.image = notif.cleanImageSource(notif.notification.image);
             notif.maybeTriggerDummyImageLoader();
         }
 
@@ -206,6 +204,17 @@ QtObject {
         }
     }
 
+    function cleanImageSource(src: string): string {
+        if (!src) return "";
+        if (src.startsWith("image://icon/") && (src.includes("/tmp/") || src.includes("file:") || src.includes("/home/"))) {
+            const path = src.replace("image://icon/", "");
+            return path.startsWith("file://") ? path : "file://" + path;
+        }
+        if (src.startsWith("/"))
+            return "file://" + src;
+        return Qt.resolvedUrl(src);
+    }
+
     function checkWebApps(): void {
         const isWhatsApp = appName === "web.whatsapp.com"
             || (appName && appName.toLowerCase().includes("whatsapp"))
@@ -258,7 +267,7 @@ QtObject {
         body = notification.body;
         appIcon = notification.appIcon;
         appName = notification.appName;
-        image = notification.image;
+        image = cleanImageSource(notification.image);
         checkWebApps();
         maybeTriggerDummyImageLoader();
         expireTimeout = notification.expireTimeout;

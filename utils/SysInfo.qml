@@ -61,12 +61,27 @@ Singleton {
             root.osIdLike = fd("ID_LIKE").split(" ");
 
             const logo = Quickshell.iconPath(fd("LOGO"), true);
-            if (GlobalConfig.general.logo === "caelestia") {
+            const userLogo = GlobalConfig.general.logo;
+            if (userLogo === "caelestia" || userLogo === "debonair") {
                 root.osLogo = Qt.resolvedUrl(`${Quickshell.shellDir}/assets/logo.svg`);
                 root.isDefaultLogo = true;
-            } else if (GlobalConfig.general.logo) {
-                root.osLogo = Quickshell.iconPath(GlobalConfig.general.logo, true) || "file://" + Paths.absolutePath(GlobalConfig.general.logo);
-                root.isDefaultLogo = false;
+            } else if (userLogo) {
+                const resolvedIcon = Quickshell.iconPath(userLogo, true)
+                    || Quickshell.iconPath(`${userLogo}-logo`, true)
+                    || Quickshell.iconPath(`distributor-logo-${userLogo}`, true);
+                if (resolvedIcon) {
+                    root.osLogo = resolvedIcon;
+                    root.isDefaultLogo = false;
+                } else if (userLogo.startsWith("/") || userLogo.startsWith("./") || userLogo.startsWith("~") || userLogo.startsWith("file://")) {
+                    root.osLogo = "file://" + Paths.absolutePath(userLogo);
+                    root.isDefaultLogo = false;
+                } else if (logo) {
+                    root.osLogo = logo;
+                    root.isDefaultLogo = false;
+                } else {
+                    root.osLogo = Qt.resolvedUrl(`${Quickshell.shellDir}/assets/logo.svg`);
+                    root.isDefaultLogo = true;
+                }
             } else if (logo) {
                 root.osLogo = logo;
                 root.isDefaultLogo = false;

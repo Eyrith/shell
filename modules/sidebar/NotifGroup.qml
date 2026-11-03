@@ -83,9 +83,15 @@ StyledRect {
                 id: imageComp
 
                 Image {
-                    source: root.image.startsWith("image://icon/") && root.image.includes("/tmp/")
-                        ? "file://" + root.image.replace("image://icon/", "")
-                        : Qt.resolvedUrl(root.image)
+                    source: {
+                        const img = root.image;
+                        if (!img) return "";
+                        if (img.startsWith("image://icon/") && (img.includes("/tmp/") || img.includes("file:"))) {
+                            const p = img.replace("image://icon/", "");
+                            return p.startsWith("file://") ? p : "file://" + p;
+                        }
+                        return Qt.resolvedUrl(img);
+                    }
                     fillMode: Image.PreserveAspectCrop
                     sourceSize: {
                         const size = TokenConfig.sizes.notifs.image * ((QsWindow.window as QsWindow)?.devicePixelRatio ?? 1);
@@ -104,11 +110,15 @@ StyledRect {
                 ColouredIcon {
                     implicitSize: Math.round(TokenConfig.sizes.notifs.image * 0.6)
                     source: {
-                        const icon = root.appIcon;
+                        let icon = root.appIcon;
                         if (!icon) return "";
+                        if (icon.startsWith("image://icon/") && (icon.includes("/tmp/") || icon.includes("file:"))) {
+                            const p = icon.replace("image://icon/", "");
+                            return p.startsWith("file://") ? p : "file://" + p;
+                        }
                         if (icon.startsWith("/") || icon.startsWith("file://"))
                             return icon.startsWith("file://") ? icon : "file://" + icon;
-                        return Quickshell.iconPath(icon) || icon;
+                        return Quickshell.iconPath(icon, "dialog-information") || icon;
                     }
                     colour: root.urgency === NotificationUrgency.Critical ? Colours.palette.m3onError : root.urgency === NotificationUrgency.Low ? Colours.palette.m3onSurface : Colours.palette.m3onSecondaryContainer
                     layer.enabled: root.appIcon.includes("symbolic")
@@ -155,11 +165,15 @@ StyledRect {
                         anchors.centerIn: parent
                         implicitSize: Math.round(Tokens.sizes.notifs.badge * 0.6)
                         source: {
-                            const icon = root.appIcon;
+                            let icon = root.appIcon;
                             if (!icon) return "";
+                            if (icon.startsWith("image://icon/") && (icon.includes("/tmp/") || icon.includes("file:"))) {
+                                const p = icon.replace("image://icon/", "");
+                                return p.startsWith("file://") ? p : "file://" + p;
+                            }
                             if (icon.startsWith("/") || icon.startsWith("file://"))
                                 return icon.startsWith("file://") ? icon : "file://" + icon;
-                            return Quickshell.iconPath(icon) || icon;
+                            return Quickshell.iconPath(icon, "dialog-information") || icon;
                         }
                         colour: root.urgency === NotificationUrgency.Critical ? Colours.palette.m3onError : root.urgency === NotificationUrgency.Low ? Colours.palette.m3onSurface : Colours.palette.m3onSecondaryContainer
                         layer.enabled: root.appIcon.includes("symbolic")

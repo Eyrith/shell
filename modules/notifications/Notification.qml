@@ -127,9 +127,15 @@ StyledRect {
 
                     Image {
                         anchors.fill: parent
-                        source: root.modelData.image.startsWith("image://icon/") && root.modelData.image.includes("/tmp/")
-                            ? "file://" + root.modelData.image.replace("image://icon/", "")
-                            : Qt.resolvedUrl(root.modelData.image)
+                        source: {
+                            const img = root.modelData.image;
+                            if (!img) return "";
+                            if (img.startsWith("image://icon/") && (img.includes("/tmp/") || img.includes("file:"))) {
+                                const p = img.replace("image://icon/", "");
+                                return p.startsWith("file://") ? p : "file://" + p;
+                            }
+                            return Qt.resolvedUrl(img);
+                        }
                         fillMode: Image.PreserveAspectCrop
                         sourceSize: {
                             const size = TokenConfig.sizes.notifs.image * ((QsWindow.window as QsWindow)?.devicePixelRatio ?? 1);
@@ -172,11 +178,15 @@ StyledRect {
                         sourceComponent: ColouredIcon {
                             anchors.fill: parent
                             source: {
-                                const icon = root.modelData.appIcon;
+                                let icon = root.modelData.appIcon;
                                 if (!icon) return "";
+                                if (icon.startsWith("image://icon/") && (icon.includes("/tmp/") || icon.includes("file:"))) {
+                                    const p = icon.replace("image://icon/", "");
+                                    return p.startsWith("file://") ? p : "file://" + p;
+                                }
                                 if (icon.startsWith("/") || icon.startsWith("file://"))
                                     return icon.startsWith("file://") ? icon : "file://" + icon;
-                                return Quickshell.iconPath(icon) || icon;
+                                return Quickshell.iconPath(icon, "dialog-information") || icon;
                             }
                             colour: root.modelData.urgency === NotificationUrgency.Critical ? Colours.palette.m3onError : root.modelData.urgency === NotificationUrgency.Low ? Colours.palette.m3onSurface : Colours.palette.m3onSecondaryContainer
                             layer.enabled: root.modelData.appIcon.includes("symbolic")

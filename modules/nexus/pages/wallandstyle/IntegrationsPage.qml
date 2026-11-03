@@ -10,6 +10,7 @@ import Caelestia.I18n
 import qs.components
 import qs.components.controls
 import qs.services
+import qs.utils
 import qs.modules.nexus.common
 
 PageBase {
@@ -59,7 +60,7 @@ PageBase {
         spacing: Tokens.spacing.small
 
         FileView {
-            path: `${Paths.config}/caelestia/cli.json`
+            path: `${Paths.config}/cli.json`
             watchChanges: true
             onFileChanged: root.loadConfig(text())
             onLoaded: root.loadConfig(text())
